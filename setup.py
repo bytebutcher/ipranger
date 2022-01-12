@@ -12,7 +12,7 @@ README = (HERE / "README.md").read_text()
 setup(
     name="ipranger",
     version="1.0.0",
-    description="A python package and commandline tool for generating IPv4-addresses based on schema.",
+    description="A python package and commandline tool for generating IPv4-addresses based on a schema.",
     long_description=README,
     long_description_content_type="text/markdown",
     url="https://github.com/bytebutcher/ipranger",
