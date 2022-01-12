@@ -1,15 +1,12 @@
 # ipranger
 
-![GitHub](https://img.shields.io/github/license/bytebutcher/ipranger)
-![PyPI](https://img.shields.io/pypi/v/ipranger)
+![ipranger Logo](https://github.com/bytebutcher/ipranger/raw/main/images/ipranger.png)
 
-![ipranger Logo](https://raw.githubusercontent.com/bytebutcher/ipranger/master/ipranger/images/ipranger.png)
-
-A python package and commandline tool for generating IPv4-addresses based on schema.
+A python package and commandline tool for generating IPv4-addresses based on a schema.
 
 ## Setup
 
-```ipranger``` can be installed either by using ```pip``` or by pulling the source from this repository:
+```ipranger``` can be installed either by using ```pip``` or by pulling the source code from this repository:
 ```bash
 # Install using pip
 pip3 install ipranger
