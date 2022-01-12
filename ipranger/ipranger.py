@@ -271,7 +271,7 @@ class IPRangerGenerator:
 
 class IPRanger:
 
-    def generate(self, include_list: Set[str], exclude_list: Set[str]) -> Iterator[str]:
+    def generate(self, include_list: List[str], exclude_list: List[str]) -> Iterator[str]:
         """
         Generates list of IP-addresses based on list of IP-addresses to include and list of IP-addresses to exclude.
         IP-addresses need to conform to the IPRanger IP-address specification.
@@ -289,18 +289,20 @@ class IPRanger:
             yield ip_address
 
 
-def generate(include_list: Set[str], exclude_list: Set[str]=None) -> Iterator[str]:
+def generate(include_list: List[str], exclude_list: List[str] = None) -> Iterator[str]:
     """
     Shorthand function which can be included by other packages to generate IP addresses from a set of IP addresses
     in the ipranger format.
     """
+    if not exclude_list:
+        exclude_list = []
     return IPRanger().generate(include_list, exclude_list)
 
 
 def ip_addresses_type(ipranger_format: str) -> Iterator[str]:
     """Custom argparse type for IP addresses in the ipranger format given from the command line"""
     try:
-        return generate(set(ipranger_format))
+        return generate([ipranger_format])
     except Exception as err:
         raise argparse.ArgumentTypeError(err)
 
@@ -347,7 +349,7 @@ def main():
             exclude_list.update(arguments.exclude_list.readlines())
 
         # Generate and print targets
-        for target in IPRanger().generate(include_list, exclude_list):
+        for target in IPRanger().generate(list(include_list), list(exclude_list)):
             print(target)
     except Exception as err:
         # Print exception message to the screen. Note that these are (if there is no programming error) controlled

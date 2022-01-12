@@ -49,16 +49,18 @@ $ ipranger 192.168.2.1-6 --exclude 192.168.2.2
 ```ipranger``` can be used via the custom argparse type ```ip_addresses_type```:
 ```
 import argparse
-from ipranger import ip_addresses_type
+from ipranger.ipranger import ip_addresses_type
 parser = argparse.ArgumentParser(description='Scan IPv4 addresses')
-parser.add_argument('IP_ADDRESSES', type=ip_addresses_type,
+parser.add_argument('ip_addresses', type=ip_addresses_type,
                     help="List of IPv4 addresses e.g. '192.168.0.1' '192.168.0.1,3-20', '192.168.0.1/24'")
 arguments = parser.parse_args()
-print(arguments.ip_addresses)
+for ip_address in arguments.ip_addresses:
+    print(ip_address)
 ```
 
 Another way to interact with ```ipranger``` in python programs is by importing the ```generate``` method:
 ```
-from ipranger import generate
-print(generate(include_list=set('192.168.0.1-6'), exclude_list=set('192.168.0.2'))
+from ipranger.ipranger import generate
+for ip_address in generate(include_list=['192.168.0.1-6'], exclude_list=['192.168.0.2']):
+    print(ip_address)
 ```

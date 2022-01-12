@@ -1,3 +1,8 @@
 .idea
 venv
+*.svg
 *.pyc
+*.egg-info
+*.swp
+build
+dist
