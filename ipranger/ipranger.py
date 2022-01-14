@@ -169,7 +169,7 @@ class IPRangerFormatParser:
             # Parse IP addresses and transform them into IPAddresses object.
             return dacite.from_dict(IPAddresses, self.IP_ADDRESSES.parse_string(ip_addresses, parse_all=True).as_dict())
         except Exception:
-            raise Exception("Failed to resolve \"{format}\".".format(format=ip_addresses))
+            raise Exception("Failed to resolve \"{format}\".".format(format=ip_addresses)) from None
 
 
 class IPRangerGenerator:
@@ -302,9 +302,10 @@ def generate(include_list: List[str], exclude_list: List[str] = None) -> Iterato
 def ip_addresses_type(ipranger_format: str) -> Iterator[str]:
     """Custom argparse type for IP addresses in the ipranger format given from the command line"""
     try:
-        return generate([ipranger_format])
+        parsed_ipranger_format = IPRangerFormatParser().parse(ipranger_format)
+        return IPRangerGenerator().generate([parsed_ipranger_format])
     except Exception as err:
-        raise argparse.ArgumentTypeError(err)
+        raise argparse.ArgumentTypeError(str(err))
 
 
 def main():
