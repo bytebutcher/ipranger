@@ -172,12 +172,11 @@ class IPRangerFormatParser:
             raise Exception("Failed to resolve \"{format}\".".format(format=ip_addresses)) from None
 
 
-class IPRangerGenerator:
-    """
-    The IPRangerGenerator transforms the result of the IPRangerFormatParser into a list of IP-addresses.
-    """
+class IPAddressesResolver:
+    """ Resolves a list of IPRangerFormatParser results into a list of lists of parts. """
 
-    def _expand_cidr(self, parts, cidr=None) -> [Set[int], Set[int], Set[int], Set[int]]:
+    @staticmethod
+    def _expand_cidr(parts, cidr=None) -> [Set[int], Set[int], Set[int], Set[int]]:
         """ Expands a CIDR by adding the matching octets to the list of parts. """
         if not cidr:
             # if no cidr was defined, we return the parts untouched
@@ -204,7 +203,8 @@ class IPRangerGenerator:
 
         return parts
 
-    def _resolve_part(self, part: Part) -> Set[int]:
+    @staticmethod
+    def _resolve_part(part: Part) -> Set[int]:
         """ Resolves a list of octets and ranges into a set of octets. """
         result = set()
         if part.octets:
@@ -214,20 +214,21 @@ class IPRangerGenerator:
                 result.update(range(_range.start, _range.end + 1))
         return result
 
-    def _resolve_ip_address(self, ip_address: IPAddress) -> [Set[int], Set[int], Set[int], Set[int]]:
+    @staticmethod
+    def _resolve_ip_address(ip_address: IPAddress) -> [Set[int], Set[int], Set[int], Set[int]]:
         """ Resolves the result of the IPRangerFormatParser into a list of parts. """
         cidr = None
         if ip_address.cidr:
             cidr = ip_address.cidr
-        return self._expand_cidr([
-            self._resolve_part(ip_address.p1),
-            self._resolve_part(ip_address.p2),
-            self._resolve_part(ip_address.p3),
-            self._resolve_part(ip_address.p4)
+        return IPAddressesResolver._expand_cidr([
+            IPAddressesResolver._resolve_part(ip_address.p1),
+            IPAddressesResolver._resolve_part(ip_address.p2),
+            IPAddressesResolver._resolve_part(ip_address.p3),
+            IPAddressesResolver._resolve_part(ip_address.p4)
         ], cidr)
 
-    def _resolve_ip_addresses(
-            self, ip_addresses_list: List[IPAddresses] = None) -> List:
+    @staticmethod
+    def resolve(ip_addresses_list: List[IPAddresses] = None) -> List:
         """
         Resolves a list of IPRangerFormatParser results into a list of lists of parts.
         :param ip_addresses_list: list of parsed IP-addresses.
@@ -237,8 +238,14 @@ class IPRangerGenerator:
         if ip_addresses_list:
             for target in ip_addresses_list:
                 for ip_address in target.addresses:
-                    result.append(self._resolve_ip_address(ip_address))
+                    result.append(IPAddressesResolver._resolve_ip_address(ip_address))
         return result
+
+
+class IPRangerGenerator:
+    """
+    The IPRangerGenerator transforms the result of the IPRangerFormatParser into a list of IP-addresses.
+    """
 
     def _should_exclude_ip_address(self, p1: int, p2: int, p3: int, p4: int,
                                    resolved_excluded_ip_addresses: List[List[int]]) -> bool:
@@ -258,8 +265,8 @@ class IPRangerGenerator:
         :param exclude_list: list of IP-addresses to exclude.
         :return: list of IP-addresses (e.g. '1.1.1.1', '1.2.1.1', '1.3.1.1', '1.4.1.1', '1.5.1.1', ...)
         """
-        resolved_excluded_ip_addresses = self._resolve_ip_addresses(exclude_list)
-        for part_1, part_2, part_3, part_4 in self._resolve_ip_addresses(include_list):
+        resolved_excluded_ip_addresses = IPAddressesResolver.resolve(exclude_list)
+        for part_1, part_2, part_3, part_4 in IPAddressesResolver.resolve(include_list):
             for p1 in part_1:
                 for p2 in part_2:
                     for p3 in part_3:
