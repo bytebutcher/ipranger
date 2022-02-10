@@ -6,7 +6,7 @@
 
 </div>
 
-A python package and commandline tool for generating IPv4-addresses based on a schema.
+A python package and commandline tool for generating IPv4-addresses based on a nmap-like format.
 
 ## Setup
 
