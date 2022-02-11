@@ -87,11 +87,6 @@ def make_int_range_condition(minval, maxval):
     return lambda t: in_range(t[0])
 
 
-def make_range_condition():
-    in_range = lambda x: x['start'] < x['end']
-    return lambda t: in_range(t[0])
-
-
 class IPRangerFormatParser:
     """
     Parses an IPRanger format into a list of IP-addresses.
@@ -130,7 +125,6 @@ class IPRangerFormatParser:
 
     # Range-specification (e.g. "1-10", "0-255", etc.)
     RANGE = pp.Combine(OCTET().setResultsName("start") + DASH + OCTET().setResultsName("end")) \
-        .addCondition(make_range_condition()) \
         .setResultsName("ranges*")
 
     ITEM = pp.Or(RANGE | OCTET)
@@ -211,7 +205,10 @@ class IPAddressesResolver:
             result.update(part.octets)
         if part.ranges:
             for _range in part.ranges:
-                result.update(range(_range.start, _range.end + 1))
+                if _range.start < _range.end:
+                    result.update(range(_range.start, _range.end + 1))
+                else:
+                    result.update(range(_range.end, _range.start + 1))
         return result
 
     @staticmethod

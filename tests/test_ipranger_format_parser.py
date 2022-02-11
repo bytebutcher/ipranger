@@ -29,9 +29,9 @@ class TestIPRangerFormatParser(unittest.TestCase):
         ['1,1-2,1.2.3.4'],  # - range in the middle
         ['1-2,1,1-2,1.2.3.4'],  # - multiple ranges
         ['1.2.3.4/24'],  # - cidr
-
     ])
     def test_ip_addresses_valid(self, ip_address):
+        """ Test whether ip addresses can be generated successfully """
         try:
             IPRangerFormatParser().parse(ip_address)
         except:
@@ -67,6 +67,20 @@ class TestIPRangerFormatParser(unittest.TestCase):
             IPAddress(Part(ranges=[Range(1, 2)]), Part(octets=[0]), Part(octets=[0]), Part(ranges=[Range(1, 2)]))
         ])
         self.assertEqual(IPRangerFormatParser().parse('1-2.0.0.1-2'), expected)
+
+    def test_single_ip_address_range_with_equal_parts(self):
+        """ Testing whether single ip address with range where parts are equal can be parsed correctly. """
+        expected = IPAddresses([
+            IPAddress(Part(octets=[1]), Part(octets=[2]), Part(octets=[3]), Part(ranges=[Range(4,4)]))
+        ])
+        self.assertEqual(IPRangerFormatParser().parse('1.2.3.4-4'), expected)
+
+    def test_single_ip_address_range_with_end_greater_start(self):
+        """ Testing whether single ip address with range where end is greater than start can be parsed correctly. """
+        expected = IPAddresses([
+            IPAddress(Part(octets=[1]), Part(octets=[2]), Part(octets=[3]), Part(ranges=[Range(4,1)]))
+        ])
+        self.assertEqual(IPRangerFormatParser().parse('1.2.3.4-1'), expected)
 
     def test_single_ip_address_comma_separated_ranges(self):
         """ Testing whether single ip address with comma separated ranges can be parsed correctly. """
@@ -135,8 +149,6 @@ class TestIPRangerFormatParser(unittest.TestCase):
 
     @parameterized.expand([
         ['A-B.0.0.0'],  # octets should be integer
-        ['1-1.0.0.0'],  # start should be less than end
-        ['2-1.0.0.0'],  # start should be less than end
         ['256-257.0.0.0'],  # octets should be in the range of 0-255
     ])
     def test_single_ip_address_invalid_range_values(self, ip_address):
